@@ -1,0 +1,28 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Edit User Roles</h2>
+
+<form method="post">
+    <input type="hidden" name="userId" value="@ViewBag.UserId" />
+
+    <h4>@ViewBag.UserName</h4>
+
+    @foreach (var role in Model)
+    {
+        <div class="form-check">
+            <input type="checkbox"
+                   name="selectedRoles"
+                   value="@role.Name"
+                   class="form-check-input"
+            @(role.IsSelected ? "checked" : "") />
+
+            <label class="form-check-label">
+                @role.Name
+            </label>
+        </div>
+    }
+
+    <button class="btn btn-success mt-3">
+        Save
+    </button>
+</form>

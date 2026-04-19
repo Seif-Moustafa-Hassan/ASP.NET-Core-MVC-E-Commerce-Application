@@ -1,0 +1,84 @@
+﻿@model List<ProjectData.Models.Product>
+@inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
+
+@{
+    ViewData["Title"] = "Products";
+
+    bool canCreate = (await AuthorizationService.AuthorizeAsync(User, null, "Create Product")).Succeeded;
+    bool canUpdate = (await AuthorizationService.AuthorizeAsync(User, null, "Update Product")).Succeeded;
+    bool canDelete = (await AuthorizationService.AuthorizeAsync(User, null, "Delete Product")).Succeeded;
+    bool canAddToCart = (await AuthorizationService.AuthorizeAsync(User, null, "Add to Cart")).Succeeded;
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<h2>Products</h2>
+
+@if (canCreate)
+{
+    <a class="btn btn-success mb-3" href="/Product/Create">Create Product</a>
+}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.Price</td>
+                <td>@item.Quantity</td>
+                <td>
+
+                    <a class="btn btn-primary btn-sm"
+                           href="/Product/Details/@item.Id">
+                        View
+                    </a>
+
+                    @if (canUpdate)
+                    {
+                        <a class="btn btn-warning btn-sm"
+                               href="/Product/Edit/@item.Id">
+                            Edit
+                        </a>
+                    }
+
+                    @if (canDelete)
+                    {
+                        <a class="btn btn-danger btn-sm"
+                               href="/Product/Delete/@item.Id">
+                            Delete
+                        </a>
+                    }
+
+                    @if (canAddToCart)
+                    {
+                        <a class="btn btn-success btn-sm"
+                               href="/Cart/AddToCartForm?productId=@item.Id">
+                            Add to Cart
+                        </a>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

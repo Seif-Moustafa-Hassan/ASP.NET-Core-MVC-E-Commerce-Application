@@ -1,0 +1,50 @@
+﻿@model ProjectData.Models.MenuItem
+
+<h2>Create Menu Item</h2>
+
+<form method="post">
+
+    <!-- TITLE -->
+    <div class="mb-3">
+        <label>Title</label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+
+    <!-- PARENT -->
+    <div class="mb-3">
+        <label>Parent (optional)</label>
+        <select asp-for="ParentId" class="form-control">
+            <option value="">-- Main Menu Item --</option>
+            @foreach (var p in ViewBag.Parents)
+            {
+                <option value="@p.Id">@p.Title</option>
+            }
+        </select>
+    </div>
+
+    <!-- CONTROLLER -->
+    <div class="mb-3">
+        <label>Controller</label>
+        <input asp-for="Controller" class="form-control" />
+    </div>
+
+    <!-- ACTION -->
+    <div class="mb-3">
+        <label>Action</label>
+        <input asp-for="Action" class="form-control" />
+    </div>
+
+    <!-- PERMISSION -->
+    <div class="mb-3">
+        <label>Permission</label>
+        <select asp-for="PermissionId" class="form-control">
+            <option value="">-- Select Permission --</option>
+            @foreach (var p in ViewBag.Permissions)
+            {
+                <option value="@p.Id">@p.Name</option>
+            }
+        </select>
+    </div>
+
+    <button class="btn btn-primary">Create</button>
+</form>

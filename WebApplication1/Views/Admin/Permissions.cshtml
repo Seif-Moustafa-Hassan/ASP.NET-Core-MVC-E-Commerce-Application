@@ -1,0 +1,24 @@
+﻿@model IEnumerable<ProjectData.Models.Permission>
+
+<h2>Permissions</h2>
+
+<a asp-action="CreatePermission" class="btn btn-primary mb-3">
+    Create Permission
+</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,194 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ProjectData.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ApplicationUser currentUser = null;
+    bool isAuthenticated = SignInManager.IsSignedIn(User);
+
+    if (isAuthenticated)
+    {
+        currentUser = await UserManager.GetUserAsync(User);
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WebApplication1</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+            body {
+                display: flex;
+                margin: 0;
+            }
+
+            .sidebar {
+                width: 250px;
+                min-height: 100vh;
+                background: #f8f9fa;
+                border-right: 1px solid #ddd;
+                padding: 10px;
+            }
+
+                .sidebar h5 {
+                    cursor: pointer;
+                    padding: 10px;
+                    margin: 0;
+                    background: #e9ecef;
+                    border-radius: 6px;
+                }
+
+            .submenu {
+                display: none;
+                padding-left: 15px;
+                margin-top: 5px;
+            }
+
+                .submenu a {
+                    display: block;
+                    padding: 6px;
+                    text-decoration: none;
+                    color: #333;
+                    border-radius: 4px;
+                }
+
+                    .submenu a:hover {
+                        background: #ddd;
+                    }
+
+            .main-content {
+                flex: 1;
+                padding: 20px;
+            }
+
+            .topbar {
+                width: 100%;
+                background: #ffffff;
+                border-bottom: 1px solid #ddd;
+                padding: 10px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .brand {
+                font-weight: bold;
+                font-size: 18px;
+            }
+    </style>
+</head>
+
+<body>
+
+    @if (isAuthenticated)
+    {
+        <div class="sidebar" id="sidebar">
+            <!-- menu will be injected here -->
+            Loading menu...
+        </div>
+    }
+
+    <div class="main-content">
+
+        <div class="topbar">
+
+            <div class="brand">
+                WebApplication1
+            </div>
+
+            <div class="d-flex align-items-center">
+
+                @if (isAuthenticated)
+                {
+                    <span class="badge bg-primary me-2 px-3 py-2">
+                        @currentUser?.UserName
+                    </span>
+
+                    <a asp-controller="Auth"
+                           asp-action="Logout"
+                           class="btn btn-outline-danger btn-sm">
+                        Logout
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Auth"
+                           asp-action="Login"
+                           class="btn btn-outline-primary btn-sm me-2">
+                        Login
+                    </a>
+
+                    <a asp-controller="Auth"
+                           asp-action="Register"
+                           class="btn btn-primary btn-sm">
+                        Register
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        @RenderBody()
+
+    </div>
+
+    <script>
+            function toggleMenu(id) {
+                const menu = document.getElementById(id);
+
+                menu.style.display =
+                    menu.style.display === "block" ? "none" : "block";
+            }
+
+            async function loadMenu() {
+                const res = await fetch('/api/menu');
+                const data = await res.json();
+
+                const sidebar = document.getElementById("sidebar");
+
+                let html = "";
+
+                data.forEach((parent, index) => {
+
+                    const menuId = "menu_" + index;
+
+                    html += `
+                        <h5 onclick="toggleMenu('${menuId}')">
+                            📁 ${parent.title}
+                        </h5>
+
+                        <div id="${menuId}" class="submenu">
+                    `;
+
+                    parent.children.forEach(child => {
+                        html += `
+                            <a href="/${child.controller}/${child.action}">
+                                ${child.title}
+                            </a>
+                        `;
+                    });
+
+                    html += `</div>`;
+                });
+
+                sidebar.innerHTML = html;
+            }
+
+            document.addEventListener("DOMContentLoaded", loadMenu);
+    </script>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

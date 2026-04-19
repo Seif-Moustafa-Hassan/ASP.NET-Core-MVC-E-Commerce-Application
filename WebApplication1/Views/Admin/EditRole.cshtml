@@ -1,0 +1,30 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Edit Role Permissions</h2>
+
+<form method="post">
+    <input type="hidden" name="roleId" value="@ViewBag.RoleId" />
+
+    <h4>@ViewBag.RoleName</h4>
+
+    <div class="mb-3">
+        @foreach (var p in Model)
+        {
+            <div class="form-check">
+                <input type="checkbox"
+                       class="form-check-input"
+                       name="selectedPermissions"
+                       value="@p.Id"
+                @(p.IsSelected ? "checked" : "") />
+
+                <label class="form-check-label">
+                    @p.Name
+                </label>
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        Save
+    </button>
+</form>

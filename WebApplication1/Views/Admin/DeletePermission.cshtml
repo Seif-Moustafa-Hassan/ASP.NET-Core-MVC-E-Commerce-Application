@@ -1,0 +1,16 @@
+﻿@model ProjectData.Models.Permission
+
+<h2>Delete Permission</h2>
+
+<h4>Are you sure?</h4>
+
+<div class="alert alert-warning">
+    @Model.Name
+</div>
+
+<form method="post" asp-action="DeletePermission">
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <button class="btn btn-danger">Delete</button>
+    <a asp-action="Permissions" class="btn btn-secondary">Cancel</a>
+</form>

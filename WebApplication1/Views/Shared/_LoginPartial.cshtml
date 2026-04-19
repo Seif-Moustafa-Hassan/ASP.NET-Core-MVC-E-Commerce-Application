@@ -1,0 +1,34 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ProjectData.Models.ApplicationUser> SignInManager
+@inject UserManager<ProjectData.Models.ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Product" asp-action="Index">Products</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Product" asp-action="Create">Create Product</a>
+        </li>
+
+        <li class="nav-item">
+            <form asp-controller="Auth" asp-action="Logout" method="post">
+                <button type="submit" class="btn btn-link nav-link text-dark">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Register</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Login</a>
+        </li>
+    }
+
+</ul>
