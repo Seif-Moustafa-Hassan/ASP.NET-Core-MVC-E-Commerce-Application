@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Authorization;
-using WebApplication1.Data;
+//using WebApplication1.Data;
+using ProjectData.Data;
 using ProjectData.Models;
 
 var builder = WebApplication.CreateBuilder(args);

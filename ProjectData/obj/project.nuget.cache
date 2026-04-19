@@ -1,8 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "dPBeEsEZjfY=",
+  "dgSpecHash": "ZwD4xXSRV2A=",
   "success": true,
   "projectFilePath": "C:\\Users\\seif_abdelhamid\\source\\repos\\WebApplication1\\ProjectData\\ProjectData.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\seif_abdelhamid\\.nuget\\packages\\microsoft.aspnetcore.identity.entityframeworkcore\\10.0.6\\microsoft.aspnetcore.identity.entityframeworkcore.10.0.6.nupkg.sha512",
+    "C:\\Users\\seif_abdelhamid\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.6\\microsoft.entityframeworkcore.10.0.6.nupkg.sha512",
+    "C:\\Users\\seif_abdelhamid\\.nuget\\packages\\microsoft.entityframeworkcore.abstractions\\10.0.6\\microsoft.entityframeworkcore.abstractions.10.0.6.nupkg.sha512",
+    "C:\\Users\\seif_abdelhamid\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\10.0.6\\microsoft.entityframeworkcore.analyzers.10.0.6.nupkg.sha512",
+    "C:\\Users\\seif_abdelhamid\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\10.0.6\\microsoft.entityframeworkcore.relational.10.0.6.nupkg.sha512"
+  ],
   "logs": []
 }

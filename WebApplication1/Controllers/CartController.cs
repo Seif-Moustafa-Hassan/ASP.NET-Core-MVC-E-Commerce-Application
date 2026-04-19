@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Authorization;
-using WebApplication1.Data;
+//using WebApplication1.Data;
+using ProjectData.Data;
 using ProjectData.Models;
 
 namespace WebApplication1.Controllers

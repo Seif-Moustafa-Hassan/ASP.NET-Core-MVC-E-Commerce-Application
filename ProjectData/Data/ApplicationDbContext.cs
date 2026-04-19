@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 //using WebApplication1.Models;
 using ProjectData.Models;
 
-namespace WebApplication1.Data
+namespace ProjectData.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

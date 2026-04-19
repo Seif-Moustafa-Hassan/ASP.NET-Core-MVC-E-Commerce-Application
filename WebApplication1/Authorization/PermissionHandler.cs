@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using WebApplication1.Data;
+//using WebApplication1.Data;
+using ProjectData.Data;
 
 namespace WebApplication1.Authorization
 {
