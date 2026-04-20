@@ -1,25 +1,23 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebApplication1.Authorization;
-//using WebApplication1.Data;
-using ProjectData.Data;
 using ProjectData.Models;
+using ProjectServices.Services.Interfaces;
 
 namespace WebApplication1.Controllers
 {
     [Authorize]
     public class CartController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICartService _cartService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public CartController(
-            ApplicationDbContext context,
+            ICartService cartService,
             UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            _cartService = cartService;
             _userManager = userManager;
         }
 
@@ -30,8 +28,7 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public async Task<IActionResult> AddToCartForm(int productId)
         {
-            var product = await _context.Products
-                .FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _cartService.GetProductByIdAsync(productId);
 
             if (product == null)
                 return NotFound();
@@ -52,32 +49,13 @@ namespace WebApplication1.Controllers
             if (user == null)
                 return Unauthorized();
 
-            if (quantity <= 0)
+            var success = await _cartService.AddToCartAsync(user.Id, productId, quantity);
+
+            if (!success)
             {
                 TempData["Error"] = "Invalid quantity selected.";
                 return RedirectToAction("Index", "Product");
             }
-
-            var existingItem = await _context.Carts
-                .FirstOrDefaultAsync(c =>
-                    c.UserId == user.Id &&
-                    c.ProductId == productId);
-
-            if (existingItem != null)
-            {
-                existingItem.Quantity += quantity;
-            }
-            else
-            {
-                _context.Carts.Add(new Cart
-                {
-                    UserId = user.Id,
-                    ProductId = productId,
-                    Quantity = quantity
-                });
-            }
-
-            await _context.SaveChangesAsync();
 
             TempData["Success"] = "Product added to cart successfully!";
             return RedirectToAction("Index", "Product");
@@ -94,10 +72,7 @@ namespace WebApplication1.Controllers
             if (user == null)
                 return Unauthorized();
 
-            var cartItems = await _context.Carts
-                .Include(c => c.Product)
-                .Where(c => c.UserId == user.Id)
-                .ToListAsync();
+            var cartItems = await _cartService.GetUserCartAsync(user.Id);
 
             return View(cartItems);
         }

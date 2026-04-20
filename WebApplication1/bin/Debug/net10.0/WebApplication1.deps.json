@@ -15,7 +15,8 @@
           "Microsoft.EntityFrameworkCore.Sqlite": "10.0.6",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "10.0.2",
           "NuGet.Packaging": "7.3.1",
-          "ProjectData": "1.0.0"
+          "ProjectData": "1.0.0",
+          "ProjectServices": "1.0.0"
         },
         "runtime": {
           "WebApplication1.dll": {}
@@ -2075,6 +2076,17 @@
             "fileVersion": "1.0.0.0"
           }
         }
+      },
+      "ProjectServices/1.0.0": {
+        "dependencies": {
+          "ProjectData": "1.0.0"
+        },
+        "runtime": {
+          "ProjectServices.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
       }
     }
   },
@@ -2988,6 +3000,11 @@
       "hashPath": "system.security.cryptography.protecteddata.9.0.6.nupkg.sha512"
     },
     "ProjectData/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ProjectServices/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

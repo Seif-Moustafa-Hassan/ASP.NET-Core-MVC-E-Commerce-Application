@@ -2593,6 +2593,22 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "ProjectServices/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "ProjectData": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ProjectServices.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ProjectServices.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
       }
     }
   },
@@ -6692,6 +6708,11 @@
       "type": "project",
       "path": "../ProjectData/ProjectData.csproj",
       "msbuildProject": "../ProjectData/ProjectData.csproj"
+    },
+    "ProjectServices/1.0.0": {
+      "type": "project",
+      "path": "../ProjectServices/ProjectServices.csproj",
+      "msbuildProject": "../ProjectServices/ProjectServices.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -6704,7 +6725,8 @@
       "Microsoft.EntityFrameworkCore.Tools >= 10.0.6",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 10.0.2",
       "NuGet.Packaging >= 7.3.1",
-      "ProjectData >= 1.0.0"
+      "ProjectData >= 1.0.0",
+      "ProjectServices >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -6742,6 +6764,9 @@
           "projectReferences": {
             "C:\\Users\\seif_abdelhamid\\source\\repos\\WebApplication1\\ProjectData\\ProjectData.csproj": {
               "projectPath": "C:\\Users\\seif_abdelhamid\\source\\repos\\WebApplication1\\ProjectData\\ProjectData.csproj"
+            },
+            "C:\\Users\\seif_abdelhamid\\source\\repos\\WebApplication1\\ProjectServices\\ProjectServices.csproj": {
+              "projectPath": "C:\\Users\\seif_abdelhamid\\source\\repos\\WebApplication1\\ProjectServices\\ProjectServices.csproj"
             }
           }
         }

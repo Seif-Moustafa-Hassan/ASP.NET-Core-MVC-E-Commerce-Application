@@ -439,3 +439,10 @@ C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\obj\Debug\
 C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\obj\Debug\net10.0\WebApplication1.pdb
 C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\obj\Debug\net10.0\WebApplication1.genruntimeconfig.cache
 C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\obj\Debug\net10.0\ref\WebApplication1.dll
+C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\bin\Debug\net10.0\ProjectServices.deps.json
+C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\bin\Debug\net10.0\ProjectServices.runtimeconfig.json
+C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\bin\Debug\net10.0\ProjectServices.staticwebassets.runtime.json
+C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\bin\Debug\net10.0\ProjectServices.staticwebassets.endpoints.json
+C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\bin\Debug\net10.0\ProjectServices.exe
+C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\bin\Debug\net10.0\ProjectServices.dll
+C:\Users\seif_abdelhamid\source\repos\WebApplication1\WebApplication1\bin\Debug\net10.0\ProjectServices.pdb

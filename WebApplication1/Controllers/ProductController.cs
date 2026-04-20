@@ -1,22 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using WebApplication1.Authorization;
-//using WebApplication1.Data;
-using ProjectData.Data;
 using ProjectData.Models;
+using ProjectServices.Services.Interfaces;
 
 namespace WebApplication1.Controllers
 {
     [Authorize]
     public class ProductController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IProductService _productService;
 
-        public ProductController(ApplicationDbContext context)
+        public ProductController(IProductService productService)
         {
-            _context = context;
+            _productService = productService;
         }
 
         // =========================
@@ -25,7 +22,7 @@ namespace WebApplication1.Controllers
         [Permission("View Products")]
         public IActionResult Index()
         {
-            var products = _context.Products.ToList();
+            var products = _productService.GetAll();
             return View(products);
         }
 
@@ -35,7 +32,7 @@ namespace WebApplication1.Controllers
         [Permission("View Product Details")]
         public IActionResult Details(int id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _productService.GetById(id);
 
             if (product == null)
                 return NotFound();
@@ -68,8 +65,7 @@ namespace WebApplication1.Controllers
                     return View(product);
                 }
 
-                _context.Products.Add(product);
-                _context.SaveChanges();
+                _productService.Create(product);
 
                 TempData["Success"] = "Product created successfully!";
                 return RedirectToAction(nameof(Index));
@@ -87,7 +83,7 @@ namespace WebApplication1.Controllers
         [Permission("Update Product")]
         public IActionResult Edit(int id)
         {
-            var product = _context.Products.Find(id);
+            var product = _productService.GetById(id);
 
             if (product == null)
                 return NotFound();
@@ -111,8 +107,7 @@ namespace WebApplication1.Controllers
                     return View(product);
                 }
 
-                _context.Products.Update(product);
-                _context.SaveChanges();
+                _productService.Update(product);
 
                 TempData["Success"] = "Product updated successfully!";
                 return RedirectToAction(nameof(Index));
@@ -130,7 +125,7 @@ namespace WebApplication1.Controllers
         [Permission("Delete Product")]
         public IActionResult Delete(int id)
         {
-            var product = _context.Products.Find(id);
+            var product = _productService.GetById(id);
 
             if (product == null)
                 return NotFound();
@@ -148,18 +143,17 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var product = _context.Products.Find(id);
+                var success = _productService.Delete(id);
 
-                if (product == null)
+                if (!success)
                 {
                     TempData["Error"] = "Product not found!";
-                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    TempData["Success"] = "Product deleted successfully!";
                 }
 
-                _context.Products.Remove(product);
-                _context.SaveChanges();
-
-                TempData["Success"] = "Product deleted successfully!";
                 return RedirectToAction(nameof(Index));
             }
             catch

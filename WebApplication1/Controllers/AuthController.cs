@@ -1,19 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using ProjectData.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using ProjectServices.Services.Interfaces;
 
 namespace WebApplication1.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IAuthService _authService;
 
-        public AuthController(UserManager<ApplicationUser> userManager,
-                              SignInManager<ApplicationUser> signInManager)
+        public AuthController(IAuthService authService)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _authService = authService;
         }
 
         // ================= REGISTER =================
@@ -28,34 +24,26 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(string name, string email, string password, string confirmPassword)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(
+            string name,
+            string email,
+            string password,
+            string confirmPassword)
         {
             if (User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Product");
 
-            if (password != confirmPassword)
-            {
-                ViewBag.Error = "Passwords do not match";
-                return View();
-            }
+            var (success, errors) = await _authService.RegisterAsync(
+                name, email, password, confirmPassword);
 
-            var user = new ApplicationUser
+            if (success)
             {
-                Email = email,
-                UserName = name // IMPORTANT: use email as username
-            };
-
-            var result = await _userManager.CreateAsync(user, password);
-
-            if (result.Succeeded)
-            {
+                TempData["Success"] = "Registration successful!";
                 return RedirectToAction("Login");
             }
 
-            // 🔥 SHOW REAL ERRORS (THIS IS THE FIX)
-            ViewBag.Error = string.Join(" | ",
-                result.Errors.Select(e => e.Description));
-
+            TempData["Error"] = string.Join(" | ", errors);
             return View();
         }
 
@@ -71,30 +59,18 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password)
         {
             if (User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Product");
 
-            var user = await _userManager.FindByEmailAsync(email);
+            var success = await _authService.LoginAsync(email, password);
 
-            if (user == null)
-            {
-                ViewBag.Error = "Invalid login attempt";
-                return View();
-            }
-
-            var result = await _signInManager.PasswordSignInAsync(
-                user.UserName,
-                password,
-                false,
-                false
-            );
-
-            if (result.Succeeded)
+            if (success)
                 return RedirectToAction("Index", "Product");
 
-            ViewBag.Error = "Invalid login attempt";
+            TempData["Error"] = "Invalid login attempt";
             return View();
         }
 
@@ -102,7 +78,7 @@ namespace WebApplication1.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await _authService.LogoutAsync();
             return RedirectToAction("Login");
         }
     }

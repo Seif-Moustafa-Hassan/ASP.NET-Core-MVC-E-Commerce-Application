@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using WebApplication1.Authorization;
-//using WebApplication1.Data;
-using ProjectData.Data;
+using ProjectServices.Services.Interfaces;
 using ProjectData.Models;
 
 namespace WebApplication1.Controllers
@@ -13,18 +9,11 @@ namespace WebApplication1.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAdminService _adminService;
 
-        public AdminController(
-            ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+        public AdminController(IAdminService adminService)
         {
-            _context = context;
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _adminService = adminService;
         }
 
         // =========================
@@ -35,15 +24,12 @@ namespace WebApplication1.Controllers
             return View();
         }
 
-        // =====================================================
-        // ================= ROLE MANAGEMENT ===================
-        // =====================================================
+        // ================= ROLE MANAGEMENT =================
 
         [Permission("View Roles")]
         public IActionResult Roles()
         {
-            var roles = _roleManager.Roles.ToList();
-            return View(roles);
+            return View(_adminService.GetRoles());
         }
 
         [Permission("Create Role")]
@@ -63,30 +49,26 @@ namespace WebApplication1.Controllers
                 return View();
             }
 
-            var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+            var (success, errors) = await _adminService.CreateRoleAsync(roleName);
 
-            if (result.Succeeded)
+            if (success)
             {
                 TempData["Success"] = "Role created successfully";
                 return RedirectToAction(nameof(Roles));
             }
 
-            TempData["Error"] = string.Join(",", result.Errors.Select(e => e.Description));
+            TempData["Error"] = string.Join(",", errors);
             return View();
         }
 
         [Permission("Edit Role")]
         public async Task<IActionResult> EditRole(string id)
         {
-            var role = await _roleManager.FindByIdAsync(id);
+            var role = await _adminService.GetRoleByIdAsync(id);
             if (role == null) return NotFound();
 
-            var permissions = await _context.Permissions.ToListAsync();
-
-            var rolePermissions = await _context.RolePermissions
-                .Where(rp => rp.RoleId == id)
-                .Select(rp => rp.PermissionId)
-                .ToListAsync();
+            var permissions = await _adminService.GetAllPermissionsAsync();
+            var rolePermissions = await _adminService.GetRolePermissionsAsync(id);
 
             var model = permissions.Select(p => new
             {
@@ -106,21 +88,7 @@ namespace WebApplication1.Controllers
         [Permission("Edit Role")]
         public async Task<IActionResult> EditRole(string roleId, List<int> selectedPermissions)
         {
-            var existing = _context.RolePermissions.Where(x => x.RoleId == roleId);
-            _context.RolePermissions.RemoveRange(existing);
-
-            if (selectedPermissions != null)
-            {
-                var newPermissions = selectedPermissions.Select(p => new RolePermission
-                {
-                    RoleId = roleId,
-                    PermissionId = p
-                });
-
-                await _context.RolePermissions.AddRangeAsync(newPermissions);
-            }
-
-            await _context.SaveChangesAsync();
+            await _adminService.UpdateRolePermissionsAsync(roleId, selectedPermissions);
 
             TempData["Success"] = "Permissions updated successfully";
             return RedirectToAction(nameof(Roles));
@@ -129,7 +97,7 @@ namespace WebApplication1.Controllers
         [Permission("Delete Role")]
         public async Task<IActionResult> DeleteRole(string id)
         {
-            var role = await _roleManager.FindByIdAsync(id);
+            var role = await _adminService.GetRoleByIdAsync(id);
             if (role == null) return NotFound();
 
             return View(role);
@@ -140,29 +108,24 @@ namespace WebApplication1.Controllers
         [Permission("Delete Role")]
         public async Task<IActionResult> DeleteRoleConfirmed(string id)
         {
-            var role = await _roleManager.FindByIdAsync(id);
+            var success = await _adminService.DeleteRoleAsync(id);
 
-            if (role == null)
+            if (!success)
             {
                 TempData["Error"] = "Role not found";
                 return RedirectToAction(nameof(Roles));
             }
 
-            await _roleManager.DeleteAsync(role);
-
             TempData["Success"] = "Role deleted successfully";
             return RedirectToAction(nameof(Roles));
         }
 
-        // =====================================================
-        // ============== PERMISSION MANAGEMENT =================
-        // =====================================================
+        // ================= PERMISSION MANAGEMENT =================
 
         [Permission("View Permissions")]
         public IActionResult Permissions()
         {
-            var permissions = _context.Permissions.ToList();
-            return View(permissions);
+            return View(_adminService.GetPermissions());
         }
 
         [Permission("Create Permission")]
@@ -174,13 +137,12 @@ namespace WebApplication1.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission("Create Permission")]
-        public IActionResult CreatePermission(Permission permission)
+        public async Task<IActionResult> CreatePermission(Permission permission)
         {
             if (!ModelState.IsValid)
                 return View(permission);
 
-            _context.Permissions.Add(permission);
-            _context.SaveChanges();
+            await _adminService.CreatePermissionAsync(permission);
 
             TempData["Success"] = "Permission created successfully";
             return RedirectToAction(nameof(Permissions));
@@ -189,7 +151,7 @@ namespace WebApplication1.Controllers
         [Permission("Edit Permission")]
         public IActionResult EditPermission(int id)
         {
-            var permission = _context.Permissions.Find(id);
+            var permission = _adminService.GetPermissionById(id);
             if (permission == null) return NotFound();
 
             return View(permission);
@@ -198,13 +160,12 @@ namespace WebApplication1.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission("Edit Permission")]
-        public IActionResult EditPermission(Permission permission)
+        public async Task<IActionResult> EditPermission(Permission permission)
         {
             if (!ModelState.IsValid)
                 return View(permission);
 
-            _context.Permissions.Update(permission);
-            _context.SaveChanges();
+            await _adminService.UpdatePermissionAsync(permission);
 
             TempData["Success"] = "Permission updated successfully";
             return RedirectToAction(nameof(Permissions));
@@ -213,7 +174,7 @@ namespace WebApplication1.Controllers
         [Permission("Delete Permission")]
         public IActionResult DeletePermission(int id)
         {
-            var permission = _context.Permissions.Find(id);
+            var permission = _adminService.GetPermissionById(id);
             if (permission == null) return NotFound();
 
             return View(permission);
@@ -222,42 +183,36 @@ namespace WebApplication1.Controllers
         [HttpPost, ActionName("DeletePermission")]
         [ValidateAntiForgeryToken]
         [Permission("Delete Permission")]
-        public IActionResult DeletePermissionConfirmed(int id)
+        public async Task<IActionResult> DeletePermissionConfirmed(int id)
         {
-            var permission = _context.Permissions.Find(id);
+            var success = await _adminService.DeletePermissionAsync(id);
 
-            if (permission == null)
+            if (!success)
             {
                 TempData["Error"] = "Permission not found";
                 return RedirectToAction(nameof(Permissions));
             }
 
-            _context.Permissions.Remove(permission);
-            _context.SaveChanges();
-
             TempData["Success"] = "Permission deleted successfully";
             return RedirectToAction(nameof(Permissions));
         }
 
-        // =====================================================
-        // ================= USER MANAGEMENT ====================
-        // =====================================================
+        // ================= USER MANAGEMENT =================
 
         [Permission("View Users")]
         public IActionResult Users()
         {
-            var users = _userManager.Users.ToList();
-            return View(users);
+            return View(_adminService.GetUsers());
         }
 
         [Permission("Edit User")]
         public async Task<IActionResult> EditUserRoles(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _adminService.GetUserByIdAsync(userId);
             if (user == null) return NotFound();
 
-            var roles = _roleManager.Roles.ToList();
-            var userRoles = await _userManager.GetRolesAsync(user);
+            var roles = _adminService.GetRoles();
+            var userRoles = await _adminService.GetUserRolesAsync(user);
 
             var model = roles.Select(r => new
             {
@@ -276,14 +231,10 @@ namespace WebApplication1.Controllers
         [Permission("Edit User")]
         public async Task<IActionResult> EditUserRoles(string userId, List<string> selectedRoles)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _adminService.GetUserByIdAsync(userId);
+            if (user == null) return NotFound();
 
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            await _userManager.RemoveFromRolesAsync(user, userRoles);
-
-            if (selectedRoles != null)
-                await _userManager.AddToRolesAsync(user, selectedRoles);
+            await _adminService.UpdateUserRolesAsync(user, selectedRoles);
 
             TempData["Success"] = "User roles updated successfully";
             return RedirectToAction(nameof(Users));
@@ -292,7 +243,7 @@ namespace WebApplication1.Controllers
         [Permission("Delete User")]
         public async Task<IActionResult> DeleteUser(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _adminService.GetUserByIdAsync(userId);
             if (user == null) return NotFound();
 
             return View(user);
@@ -303,28 +254,25 @@ namespace WebApplication1.Controllers
         [Permission("Delete User")]
         public async Task<IActionResult> DeleteUserConfirmed(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var success = await _adminService.DeleteUserAsync(userId);
 
-            if (user == null)
+            if (!success)
             {
                 TempData["Error"] = "User not found";
                 return RedirectToAction(nameof(Users));
             }
 
-            await _userManager.DeleteAsync(user);
-
             TempData["Success"] = "User deleted successfully";
             return RedirectToAction(nameof(Users));
         }
 
+        // ================= MENU =================
+
         [Permission("Create Menu Item")]
         public IActionResult CreateMenuItem()
         {
-            ViewBag.Parents = _context.MenuItems
-                .Where(x => x.ParentId == null)
-                .ToList();
-
-            ViewBag.Permissions = _context.Permissions.ToList();
+            ViewBag.Parents = _adminService.GetParentMenuItems();
+            ViewBag.Permissions = _adminService.GetMenuPermissions();
 
             return View();
         }
@@ -332,36 +280,18 @@ namespace WebApplication1.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Permission("Create Permission")]
-        public IActionResult CreateMenuItem(MenuItem model)
+        public async Task<IActionResult> CreateMenuItem(MenuItem model)
         {
-            // RULE 1: Parent item
-            if (model.ParentId == null)
-            {
-                model.Controller = null;
-                model.Action = null;
-                model.PermissionId = null;
-            }
+            var (success, error) = await _adminService.CreateMenuItemAsync(model);
 
-            // RULE 2: Child item validation
-            else
+            if (!success)
             {
-                if (string.IsNullOrWhiteSpace(model.Controller) ||
-                    string.IsNullOrWhiteSpace(model.Action) ||
-                    model.PermissionId == null)
-                {
-                    TempData["Error"] = "Child items must have Controller, Action, and Permission.";
-                    return RedirectToAction("CreateMenuItem");
-                }
+                TempData["Error"] = error;
+                return RedirectToAction(nameof(CreateMenuItem));
             }
-
-            _context.MenuItems.Add(model);
-            _context.SaveChanges();
 
             TempData["Success"] = "Menu item created successfully";
-            return RedirectToAction("Permissions"); // or any page you prefer
+            return RedirectToAction(nameof(Permissions));
         }
-
-
-
     }
 }

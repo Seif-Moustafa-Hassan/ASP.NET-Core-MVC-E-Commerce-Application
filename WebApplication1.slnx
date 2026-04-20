@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="ApplicationData/ApplicationData.csproj" Id="aa0471c5-6ec5-415d-bfa9-54dfd84231fa" />
   <Project Path="ProjectData/ProjectData.csproj" Id="15357013-9bdf-480b-83d5-5cf1fbf744a6" />
+  <Project Path="ProjectServices/ProjectServices.csproj" Id="d51fa3f6-7a78-4cf6-a2b3-47c3e9263412" />
   <Project Path="WebApplication1/WebApplication1.csproj" />
 </Solution>
